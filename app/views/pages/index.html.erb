@@ -1,0 +1,71 @@
+<table id="controls" border="0">
+</table>
+
+<script>
+for (var i=1;i<=8;i++)
+{
+  var table = document.getElementById("controls");
+  var row = table.insertRow(-1);
+  row.id = "row"+i;
+  if (i % 2 == 0)
+  {
+    row.className = "alt";
+  }
+
+  var cell1 = row.insertCell(0);
+  var cell2= row.insertCell(1);
+  var cell3 = row.insertCell(2);
+  var cell4 = row.insertCell(3);
+
+  cell1.innerHTML = '<span id="icon"><img src="/images/lightbulb-off-icon.png"></span><strong>Lights #'+i+'</strong>';
+  cell2.innerHTML = "&nbsp;";
+  cell3.innerHTML = '<a href="/channels/'+i+'/on" class="on_button">On</button>';
+  cell4.innerHTML = '<a href="/channels/'+i+'/off" class="off_button">Off</button>';
+}
+</script>
+
+<script>
+function image_tag(data) {
+  if (data == 'on') {
+    return('<img src="/images/lightbulb-icon.png">');
+  }
+  else if (data == 'off') {
+    return('<img src="/images/lightbulb-off-icon.png">');
+  }
+  else {
+    return('<img src="/images/exclamation-icon.png">');  
+  }
+}
+
+function update_icon(pin)
+{
+  var url = '/channels/'+pin+'/status';
+  var icon = $('#row'+pin+' #icon');
+  $.get(url, function(data) {
+    img = image_tag(data);
+    $(icon).html(img);
+  });
+}
+
+$('.on_button').click(function() {
+  var url = $(this).attr("href");
+  var icon = $(this).closest('tr').find('#icon');
+  $.get(url, function(data) {
+    $(icon).html(image_tag(data));
+  });
+  return false;
+});
+
+$('.off_button').click(function() {
+  var url = $(this).attr("href");
+  var icon = $(this).closest('tr').find('#icon');
+  $.get(url, function(data) {
+    $(icon).html(image_tag(data));
+  });
+  return false;
+});
+
+for (var i=1;i<=8;i++) {
+  update_icon(i);
+}
+</script>
