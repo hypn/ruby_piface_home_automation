@@ -17,7 +17,7 @@ for (var i=1;i<=8;i++)
   var cell3 = row.insertCell(2);
   var cell4 = row.insertCell(3);
 
-  cell1.innerHTML = '<span id="icon"><img src="/images/lightbulb-off-icon.png"></span><strong>Lights #'+i+'</strong>';
+  cell1.innerHTML = '<span id="icon"><img src="/images/spinning.gif" width="16px" height="16px"></span><strong>Lights #'+i+'</strong>';
   cell2.innerHTML = "&nbsp;";
   cell3.innerHTML = '<a href="/channels/'+i+'/on" class="on_button">On</button>';
   cell4.innerHTML = '<a href="/channels/'+i+'/off" class="off_button">Off</button>';
@@ -27,13 +27,16 @@ for (var i=1;i<=8;i++)
 <script>
 function image_tag(data) {
   if (data == 'on') {
-    return('<img src="/images/lightbulb-icon.png">');
+    return('<img src="/images/lightbulb-icon.png" width="16px" height="16px">');
   }
   else if (data == 'off') {
-    return('<img src="/images/lightbulb-off-icon.png">');
+    return('<img src="/images/lightbulb-off-icon.png" width="16px" height="16px">');
+  }
+  else if (data == 'loading') {
+    return('<img src="/images/spinning.gif" width="16px" height="16px">');
   }
   else {
-    return('<img src="/images/exclamation-icon.png">');  
+    return('<img src="/images/exclamation-icon.png" width="16px" height="16px">');  
   }
 }
 
@@ -50,6 +53,7 @@ function update_icon(pin)
 $('.on_button').click(function() {
   var url = $(this).attr("href");
   var icon = $(this).closest('tr').find('#icon');
+  $(icon).html(image_tag("loading"));
   $.get(url, function(data) {
     $(icon).html(image_tag(data));
   });
@@ -59,6 +63,7 @@ $('.on_button').click(function() {
 $('.off_button').click(function() {
   var url = $(this).attr("href");
   var icon = $(this).closest('tr').find('#icon');
+  $(icon).html(image_tag("loading"));
   $.get(url, function(data) {
     $(icon).html(image_tag(data));
   });
