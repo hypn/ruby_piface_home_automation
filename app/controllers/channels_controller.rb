@@ -1,4 +1,5 @@
 class ChannelsController < ApplicationController
+  before_action :get_channel
 
   begin
     require 'piface'
@@ -6,21 +7,25 @@ class ChannelsController < ApplicationController
     puts "Error: piface not defined!"
   end
 
-	def on
-    render text: set_channel(params[:id], 1)
+  def on
+    render text: set_channel(@channel, 1)
   end
 
   def off
-    render text: set_channel(params[:id], 0)
+    render text: set_channel(@channel, 0)
   end
 
   def status
-    render text: read_channel(params[:id])
+    render text: read_channel(@channel)
   end
 
 private
 
-  def state_to_word(state)
+  def get_channel
+    @channel = (params[:id].to_i) - 1
+  end
+
+  def input_state_to_word(state)
     return (state == 1) ? "on" : "off"
   end
 
@@ -33,9 +38,9 @@ private
       puts "!"
     end
 
-    sleep 2
+    sleep 1
 
-    if read_channel(channel) != state_to_word(state)
+    if read_channel(channel) != input_state_to_word(state)
       Piface.write(channel, 0) if defined? Piface
       return "error"
     else
@@ -45,7 +50,7 @@ private
 
   def read_channel(channel) # get "on/off" for channel number
     if defined? Piface
-      state = (Piface.read_output(channel) == 0) ? "on" : "off"
+      state = (Piface.read(channel) == 1) ? "on" : "off"
     else
       state = (rand(2) == 1) ? "on" : "off"
       puts "!"
