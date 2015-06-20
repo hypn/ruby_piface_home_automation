@@ -36,14 +36,14 @@ class ChannelsController < ApplicationController
       puts "!\n! Piface not present, setting channel #{channel} to #{state}\n!"
     end
 
-    sleep 1
+    sleep 0.25
 
-    if read_channel(channel) != input_state_to_word(state)
-      Piface.write(channel, 0) if defined? Piface
-      return 'error'
-    else
+#    if read_channel(channel) != input_state_to_word(state)
+#      Piface.write(channel, 0) if defined? Piface
+#      return 'error'
+#    else
       return (state == 1) ? 'on' : 'off'
-    end
+#    end
   end
 
   def read_channel(channel) # get "on/off" for channel number

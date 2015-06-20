@@ -1,76 +1,86 @@
-<table id="controls" border="0">
+<table id="controls" border="0" width="100%">
+<tr>
+  <td class="button on_button" data-pin="1">Channel #1<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+  <td class="button on_button" data-pin="2">Channel #2<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+</tr>
+<tr>
+  <td class="button on_button" data-pin="3">Channel #3<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+  <td class="button on_button" data-pin="4">Channel #4<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+</tr>
+<tr>
+  <td class="button on_button" data-pin="5">Channel #5<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+  <td class="button on_button" data-pin="6">Channel #6<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+</tr>
+<tr>
+  <td class="button on_button" data-pin="7">Channel #7<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+  <td class="button on_button" data-pin="8">Channel #8<br />&nbsp;<img src="/images/spinning.gif" width="16px" height="16px" class="spinner"></td>
+</tr>
+<tr>
+  <td id="all_on_button">All On</td>
+  <td id="all_off_button">All Off</td>
+</tr>
 </table>
 
-<script>
-for (var i=1;i<=8;i++)
-{
-  var table = document.getElementById("controls");
-  var row = table.insertRow(-1);
-  row.id = "row"+i;
-  if (i % 2 == 0)
-  {
-    row.className = "alt";
-  }
-
-  var cell1 = row.insertCell(0);
-  var cell2= row.insertCell(1);
-  var cell3 = row.insertCell(2);
-  var cell4 = row.insertCell(3);
-
-  cell1.innerHTML = '<span id="icon"><img src="/images/spinning.gif" width="16px" height="16px"></span><strong>Lights #'+i+'</strong>';
-  cell2.innerHTML = "&nbsp;";
-  cell3.innerHTML = '<a href="/channels/'+i+'/on" class="on_button">On</button>';
-  cell4.innerHTML = '<a href="/channels/'+i+'/off" class="off_button">Off</button>';
-}
-</script>
 
 <script>
-function image_tag(data) {
-  if (data == 'on') {
-    return('<img src="/images/lightbulb-icon.png" width="16px" height="16px">');
-  }
-  else if (data == 'off') {
-    return('<img src="/images/lightbulb-off-icon.png" width="16px" height="16px">');
-  }
-  else if (data == 'loading') {
-    return('<img src="/images/spinning.gif" width="16px" height="16px">');
-  }
-  else {
-    return('<img src="/images/exclamation-icon.png" width="16px" height="16px">');  
+function set_button(button, state) {
+  $(button).removeClass('on_button');
+  $(button).removeClass('off_button');
+  $(button).removeClass('error_button');
+
+  if (state == 'on') {
+    $(button).addClass('off_button');
+  } else if (state == 'off') {
+    $(button).addClass('on_button');
+  } else if (state == 'error') {
+    $(button).addClass('on_button');
+    $(button).addClass('error_button');
   }
 }
 
-function update_icon(pin)
+function update_buttons(pin)
 {
   var url = '/channels/'+pin+'/status';
-  var icon = $('#row'+pin+' #icon');
   $.get(url, function(data) {
-    img = image_tag(data);
-    $(icon).html(img);
+    var button = $('#controls .button')[pin-1];
+    set_button(button, data);
   });
 }
 
-$('.on_button').click(function() {
-  var url = $(this).attr("href");
-  var icon = $(this).closest('tr').find('#icon');
-  $(icon).html(image_tag("loading"));
-  $.get(url, function(data) {
-    $(icon).html(image_tag(data));
+$(document).ready(function() {
+  $('.button').click(function() {
+    var pin = $(this).data("pin");
+    var state = 'off';
+    var button = $(this);
+
+    if ($(button).hasClass('on_button')) {
+      var state = 'on';
+    }
+    var url = '/channels/'+pin+'/'+state;
+    var spinner = $(button).find('img.spinner');
+
+    $(spinner).show();
+
+    $.get(url, function(data) {
+      set_button(button, data);
+      $(spinner).hide();
+    });
+    return false;
   });
-  return false;
+
+  $('#all_on_button').click(function() {
+    $('#controls .button').addClass('on_button').removeClass('off_button').removeClass('error_button').click()
+  });
+
+  $('#all_off_button').click(function() {
+    // don't add the "off_button" class or it'll change the button to green (defaults to "off" action)
+    $('#controls .button').removeClass('on_button').removeClass('off_button').removeClass('error_button').click()
+  });
+
+  for (var i=1; i<=8; i++) {
+    update_buttons(i);
+  }
 });
 
-$('.off_button').click(function() {
-  var url = $(this).attr("href");
-  var icon = $(this).closest('tr').find('#icon');
-  $(icon).html(image_tag("loading"));
-  $.get(url, function(data) {
-    $(icon).html(image_tag(data));
-  });
-  return false;
-});
 
-for (var i=1;i<=8;i++) {
-  update_icon(i);
-}
 </script>
